@@ -1,10 +1,10 @@
 {
-  "name": "nextshcdndashboardstarter",
+  "name": "NextGraphQlDashboardApp",
   "version": "1.0.0",
   "private": true,
   "author": {
-    "name": "Kiran",
-    "url": "https://github.com/Kiranism"
+    "name": "Sachin",
+    "url": "https://github.com/sachinshah114"
   },
   "scripts": {
     "dev": "next dev --turbopack",
