@@ -1,11 +1,11 @@
 "use client";
 import { Metadata } from 'next';
 import Link from 'next/link';
-import UserAuthForm from './user-auth-form';
 import { buttonVariants } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import UserSignUpForm from './user-signup-form';
 import { useState } from 'react';
+import LoginComponent from './loginComponent';
+import SignupComponent from './singup-component';
 
 export const metadata: Metadata = {
   title: 'Authentication',
@@ -14,10 +14,6 @@ export const metadata: Metadata = {
 
 export default function SignInViewPage() {
   const [isLogin, setIsLogin] = useState(true);
-  const handleSwitchState = () => {
-    setIsLogin(!isLogin);
-  }
-
   return (
     <div className="relative h-screen flex-col items-center justify-center md:grid lg:max-w-none lg:grid-cols-2 lg:px-0">
       <Link
@@ -60,71 +56,9 @@ export default function SignInViewPage() {
       <div className="flex h-full items-center p-4 lg:p-8">
         <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
           {isLogin ?
-            <>
-              <div className="flex flex-col space-y-2 text-center">
-                <h1 className="text-2xl font-semibold tracking-tight">
-                  Login to account
-                </h1>
-                <p className="text-sm text-muted-foreground">
-                  Enter your details below to login into your account
-                </p>
-              </div>
-              <UserAuthForm />
-              <p className="px-8 text-center text-sm text-muted-foreground">
-                Don't have an account?{' '}
-                <button
-                  onClick={() => {
-                    // Call your function here
-                    handleSwitchState();
-                  }}
-                  className="underline underline-offset-4 hover:text-primary"
-                >
-                  Create an account
-                </button>{' '}
-              </p>
-            </>
-
+            <LoginComponent onSwitch={() => setIsLogin(false)} />
             :
-            <>
-              <div className="flex flex-col space-y-2 text-center">
-                <h1 className="text-2xl font-semibold tracking-tight">
-                  Create an account
-                </h1>
-                <p className="text-sm text-muted-foreground">
-                  Enter your details below to create your account
-                </p>
-              </div>
-              <UserSignUpForm />
-              <p className="px-8 text-center text-sm text-muted-foreground">
-                Already have account{' '}
-                <button
-                  onClick={() => {
-                    // Call your function here
-                    handleSwitchState();
-                  }}
-                  className="underline underline-offset-4 hover:text-primary"
-                >
-                  Login
-                </button>{' '}
-              </p>
-              <p className="px-8 text-center text-sm text-muted-foreground">
-                By clicking continue, you agree to our{' '}
-                <Link
-                  href="/terms"
-                  className="underline underline-offset-4 hover:text-primary"
-                >
-                  Terms of Service
-                </Link>{' '}
-                and{' '}
-                <Link
-                  href="/privacy"
-                  className="underline underline-offset-4 hover:text-primary"
-                >
-                  Privacy Policy
-                </Link>
-                .
-              </p>
-            </>
+            <SignupComponent onSwitch={() => setIsLogin(true)} />
           }
         </div>
       </div>
