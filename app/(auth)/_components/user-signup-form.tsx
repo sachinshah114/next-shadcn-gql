@@ -29,8 +29,10 @@ const formSchema = z.object({
 });
 
 type UserFormValues = z.infer<typeof formSchema>;
-
-export default function UserSignUpForm() {
+type UserSignUpFormProps = {
+    setIsLogin: React.Dispatch<React.SetStateAction<boolean>>;
+};
+const UserSignUpForm: React.FC<UserSignUpFormProps> = ({ setIsLogin }) => {
     const [loading, startTransition] = useTransition();
 
     const [CreateUser] = useMutation(CREATE_USER_MUTATION);
@@ -68,6 +70,10 @@ export default function UserSignUpForm() {
 
                 //reset Form
                 form.reset();
+
+                //Redirect to Login page
+                setIsLogin(true);
+
             } else {
                 toast.error('Unexpected error. Please try again.');
             }
@@ -174,3 +180,5 @@ export default function UserSignUpForm() {
         </>
     );
 }
+
+export default UserSignUpForm;
