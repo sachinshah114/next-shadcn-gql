@@ -3,9 +3,11 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 import { buttonVariants } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import LoginComponent from './loginComponent';
 import SignupComponent from './singup-component';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 
 export const metadata: Metadata = {
   title: 'Authentication',
@@ -14,6 +16,19 @@ export const metadata: Metadata = {
 
 export default function SignInViewPage() {
   const [isLogin, setIsLogin] = useState(true);
+  const { data: session, status } = useSession(); // Get session info
+  const router = useRouter();
+  useEffect(() => {
+    if (status === 'authenticated') {
+      // Redirect logged-in users to the dashboard
+      router.push('/dashboard');
+    }
+  }, [status, router]);
+
+  if (status === 'authenticated') {
+    // Optionally, render a loading spinner or nothing while redirecting
+    return null;
+  }
   return (
     <div className="relative h-screen flex-col items-center justify-center md:grid lg:max-w-none lg:grid-cols-2 lg:px-0">
       <Link
