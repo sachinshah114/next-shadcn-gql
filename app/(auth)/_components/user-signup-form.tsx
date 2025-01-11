@@ -12,7 +12,6 @@ import { Input } from '@/components/ui/input';
 import { CREATE_USER_MUTATION } from '@/utils/mutations';
 import { useMutation } from '@apollo/client';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useSearchParams } from 'next/navigation';
 import { useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';

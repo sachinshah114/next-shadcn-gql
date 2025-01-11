@@ -1,12 +1,20 @@
 import { NextAuthConfig } from 'next-auth';
 import CredentialProvider from 'next-auth/providers/credentials';
-import GithubProvider from 'next-auth/providers/github';
-
+import GoogleProvider from 'next-auth/providers/google';
+import { LOGIN_MUTATION } from './utils/mutations';
+import { ApolloClient, InMemoryCache, useMutation } from '@apollo/client';
+const client = new ApolloClient({
+  uri: 'http://localhost:4000/graphql', // Replace with your GraphQL API endpoint
+  cache: new InMemoryCache(),
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
 const authConfig = {
   providers: [
-    GithubProvider({
-      clientId: process.env.GITHUB_ID ?? '',
-      clientSecret: process.env.GITHUB_SECRET ?? ''
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET
     }),
     CredentialProvider({
       credentials: {
@@ -18,19 +26,43 @@ const authConfig = {
         }
       },
       async authorize(credentials, req) {
-        const user = {
-          id: '1',
-          name: 'John',
-          email: credentials?.email as string
-        };
-        if (user) {
-          // Any object returned will be saved in `user` property of the JWT
-          return user;
-        } else {
-          // If you return null then an error will be displayed advising the user to check their details.
-          return null;
+        try {
+          // Perform the login mutation
+          console.log(`Sending mutation with variables:`, {
+            input: {
+              email: credentials.email,
+              password: credentials.password,
+            },
+          });
+          const { data } = await client.mutate({
+            mutation: LOGIN_MUTATION,
+            variables: {
+              input: {
+                email: credentials.email,
+                password: credentials.password,
+              },
+            },
+          });
 
-          // You can also Reject this callback with an Error thus the user will be sent to the error page with the error message as a query parameter
+          console.log(`[Login response]:`, data);
+
+          // Extract the user and token
+          const response = data?.login;
+          if (!response.access_token) {
+            return null;
+          }
+
+          const user = {
+            name: response.name, // Example logic for name
+            email: response.email,
+            access_token: response.access_token, // Pass the token to session or middleware
+          };
+
+          console.log(`[Login user]:`, user);
+          return user;
+        } catch (error: any) {
+          console.error(`[Login Error]:`, error);
+          return null;
         }
       }
     })

@@ -29,6 +29,10 @@ type UserFormValue = z.infer<typeof formSchema>;
 export default function UserAuthForm() {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get('callbackUrl');
+  const error = searchParams.get('error') as string; // Capture the error from query params
+  const errorMessage = {
+    CredentialsSignin: 'Invalid email or password.',
+  }[error] || 'An unknown error occurred.';
   const [loading, startTransition] = useTransition();
   const defaultValues = {
     email: '',
@@ -43,14 +47,17 @@ export default function UserAuthForm() {
     startTransition(() => {
       signIn('credentials', {
         email: data.email,
+        password: data.password,
         callbackUrl: callbackUrl ?? '/dashboard'
+      }).then(() => {
+        toast.success('Signed In Successfully!');
       });
-      toast.success('Signed In Successfully!');
     });
   };
 
   return (
     <>
+      {error && <p className="text-red-500">{errorMessage}</p>}
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
@@ -80,7 +87,7 @@ export default function UserAuthForm() {
             name="password"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Email</FormLabel>
+                <FormLabel>Password</FormLabel>
                 <FormControl>
                   <Input
                     type="password"

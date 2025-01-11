@@ -8,14 +8,14 @@ export const useCustomQuery = <
     variables?: TVariables
 ): {
     data: TData | null;
-    error: ApolloError | null;
+    error: ApolloError | undefined;
     loading: boolean;
 } => {
     const { data, error, loading } = useQuery<TData, TVariables>(query, {
         variables,
     });
 
-    return { data: data || null, error, loading };
+    return { data: data as TData || null, error, loading };
 };
 
 export const useCustomMutation = <
@@ -26,7 +26,7 @@ export const useCustomMutation = <
 ): {
     mutate: MutationFunction<TData, TVariables>;
     data: TData | null;
-    error: ApolloError | null;
+    error: ApolloError | undefined;
 } => {
     const [mutateFunction, { data, error }] = useMutation<TData, TVariables>(mutation);
 
@@ -34,7 +34,7 @@ export const useCustomMutation = <
 
     return {
         mutate: error ? noop : mutateFunction,
-        data: data || null,
+        data: data as TData,
         error,
     };
 };

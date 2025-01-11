@@ -17,3 +17,13 @@ export const CREATE_USER_MUTATION = gql`
         }
     }
 `;
+
+export const LOGIN_MUTATION = gql`
+    mutation Login($input: LoginInput!){
+        login(login: $input){
+            access_token,
+            name,
+            email
+        }
+    }
+`;
