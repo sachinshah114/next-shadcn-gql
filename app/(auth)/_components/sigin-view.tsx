@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 
 export default function SignInViewPage() {
   const [isLogin, setIsLogin] = useState(true);
-  const { data: session, status } = useSession(); // Get session info
+  const { status } = useSession(); // Get session info
   const router = useRouter();
   useEffect(() => {
     if (status === 'authenticated') {

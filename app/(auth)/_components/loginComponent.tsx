@@ -20,7 +20,7 @@ const LoginComponent: React.FC<LoginViewProps> = ({ onSwitch }) => {
             </div>
             <UserAuthForm />
             <p className="px-8 text-center text-sm text-muted-foreground">
-                Don't have an account?{' '}
+                {`Don't have an account?`}{' '}
                 <button
                     onClick={onSwitch}
                     className="underline underline-offset-4 hover:text-primary"

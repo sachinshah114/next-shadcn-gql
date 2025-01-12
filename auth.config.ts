@@ -3,6 +3,7 @@ import CredentialProvider from 'next-auth/providers/credentials';
 import GoogleProvider from 'next-auth/providers/google';
 import { LOGIN_MUTATION } from './utils/mutations';
 import { ApolloClient, InMemoryCache, useMutation } from '@apollo/client';
+import useStore from '@/store/useStore';
 const client = new ApolloClient({
   uri: 'http://localhost:4000/graphql', // Replace with your GraphQL API endpoint
   cache: new InMemoryCache(),
@@ -27,6 +28,7 @@ const authConfig = {
       },
       async authorize(credentials, req) {
         try {
+          const { setLoginResponse } = useStore();
           // Perform the login mutation
           console.log(`Sending mutation with variables:`, {
             input: {
@@ -59,6 +61,8 @@ const authConfig = {
           };
 
           console.log(`[Login user]:`, user);
+          setLoginResponse(data);
+
           return user;
         } catch (error: any) {
           console.error(`[Login Error]:`, error);
