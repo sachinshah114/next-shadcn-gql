@@ -9,4 +9,5 @@ const useStore = create((set: any) => ({
     logout: () => set({ user: null, isLoggedIn: false }),
 }));
 
+export const store = useStore.getState();
 export default useStore;

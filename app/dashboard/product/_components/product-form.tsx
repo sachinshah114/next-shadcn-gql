@@ -12,17 +12,11 @@ import {
   FormMessage
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Product } from '@/constants/mock-api';
 import { zodResolver } from '@hookform/resolvers/zod';
+import React from 'react';
 import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
 import * as z from 'zod';
 
 const MAX_FILE_SIZE = 5000000;
@@ -36,7 +30,7 @@ const ACCEPTED_IMAGE_TYPES = [
 const formSchema = z.object({
   image: z
     .any()
-    .refine((files) => files?.length == 1, 'Image is required.')
+    .refine((files) => files && files.length > 0, 'Image is required.')
     .refine(
       (files) => files?.[0]?.size <= MAX_FILE_SIZE,
       `Max file size is 5MB.`
@@ -44,16 +38,52 @@ const formSchema = z.object({
     .refine(
       (files) => ACCEPTED_IMAGE_TYPES.includes(files?.[0]?.type),
       '.jpg, .jpeg, .png and .webp files are accepted.'
-    ),
+    )
+  ,
   name: z.string().min(2, {
     message: 'Product name must be at least 2 characters.'
   }),
-  category: z.string(),
-  price: z.number(),
+  price: z.coerce.number(),
   description: z.string().min(10, {
     message: 'Description must be at least 10 characters.'
   })
 });
+
+const uploadImageToS3 = async (file: any) => {
+  try {
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await fetch('/api/upload', {
+      method: 'POST',
+      // headers: {
+      //   'Content-Type': 'application/json',
+      // },
+      // body: JSON.stringify({
+      //   file
+      // }),
+      body: formData
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      alert(`Uploaded successfully: ${data.data.Location}`);
+      console.log('Uploaded file info:', data.data);
+    } else {
+      alert('Upload failed');
+      console.error(data.error);
+    }
+  } catch (error) {
+    console.error('Upload Error:', error);
+  }
+}
+
+export type Product = {
+  name: string,
+  price: number,
+  description: string,
+  image: string[]
+}
 
 export default function ProductForm({
   initialData,
@@ -62,11 +92,13 @@ export default function ProductForm({
   initialData: Product | null;
   pageTitle: string;
 }) {
+  const [uploadedFiles, setUploadedFiles] = React.useState<File[]>([]);
+
   const defaultValues = {
-    name: initialData?.name || '',
-    category: initialData?.category || '',
-    price: initialData?.price || 0,
-    description: initialData?.description || ''
+    name: initialData?.name || 'sachin test',
+    price: initialData?.price || 114,
+    description: initialData?.description || 'THIS IS THE FAKE DESC TO TEST',
+    image: []
   };
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -74,8 +106,38 @@ export default function ProductForm({
     values: defaultValues
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    //Upload Image in S3 bucket     
+    if (process.env.NEXT_PUBLIC_AWS_KEY_ID && process.env.NEXT_PUBLIC_AWS_SECRET_ACCESS_KEY && process.env.NEXT_PUBLIC_AWS_S3_BUCKET_NAME && process.env.NEXT_PUBLIC_AWS_REGION) {
+      const imagesNames: string[] = [];
+      for (let i = 0; i < values.image.length; i++) {
+        const presignedURL = new URL('/api/presigned', window.location.href);
+        presignedURL.searchParams.set('fileName', new Date().getTime() + values.image[i].name.trim());
+        presignedURL.searchParams.set('contentType', values.image[i].type);
+        fetch(presignedURL.toString())
+          .then((res) => res.json())
+          .then((res) => {
+            const body = values.image[i];
+            fetch(res.signedUrl, {
+              body,
+              headers: {
+                'Content-Type': values.image[i].type
+              },
+              method: 'PUT',
+            }).then(() => {
+              imagesNames.push(res.signedUrl.split('?')[0]);
+            })
+          });
+
+      }
+
+      const finalCreateProductObj = { ...values, ...{ image: imagesNames } };
+      console.log(`[finalCreateProductObj] ::: `, finalCreateProductObj);
+
+
+    } else {
+      toast.error('Please setup required keys first');
+    }
   }
 
   return (
@@ -101,11 +163,11 @@ export default function ProductForm({
                         onValueChange={field.onChange}
                         maxFiles={4}
                         maxSize={4 * 1024 * 1024}
-                        // disabled={loading}
-                        // progresses={progresses}
-                        // pass the onUpload function here for direct upload
-                        // onUpload={uploadFiles}
-                        // disabled={isUploading}
+                      // disabled={loading}
+                      // progresses={progresses}
+                      // pass the onUpload function here for direct upload
+                      // onUpload={uploadFiles}
+                      // disabled={isUploading}
                       />
                     </FormControl>
                     <FormMessage />
@@ -124,35 +186,6 @@ export default function ProductForm({
                     <FormControl>
                       <Input placeholder="Enter product name" {...field} />
                     </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="category"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Category</FormLabel>
-                    <Select
-                      onValueChange={(value) => field.onChange(value)}
-                      value={field.value[field.value.length - 1]}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select categories" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="beauty">Beauty Products</SelectItem>
-                        <SelectItem value="electronics">Electronics</SelectItem>
-                        <SelectItem value="clothing">Clothing</SelectItem>
-                        <SelectItem value="home">Home & Garden</SelectItem>
-                        <SelectItem value="sports">
-                          Sports & Outdoors
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}

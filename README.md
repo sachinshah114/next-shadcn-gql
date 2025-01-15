@@ -37,6 +37,34 @@ This is a starter template using the following stack:
 - Add the required environment variables to the `.env.local` file.
 - `npm run dev`
 
+- AWS Setup 
+- 1) Create IAM user with s3 or admin access. 
+- 2) Create s3 bucket and use this below s3 policy and change ARN.
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "PublicReadGetObject",
+      "Effect": "Allow",
+      "Principal": "*",
+      "Action": ["s3:PutObject", "s3:GetObject"],
+      "Resource": "CHANGE_YOUR_ARN"
+    }
+  ]
+}
+
+Must allow cors in s3 settings 
+
+[
+  {
+    "AllowedHeaders": ["*"],
+    "AllowedMethods": ["GET", "PUT"],
+    "AllowedOrigins": ["*"],
+    "ExposeHeaders": [],
+    "MaxAgeSeconds": 9000
+  }
+]
+
 You should now be able to access the application at http://localhost:3000.
 
 Enjoy! 🥂

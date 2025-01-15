@@ -96,6 +96,7 @@ export function FileUploader(props: FileUploaderProps) {
   const {
     value: valueProp,
     onValueChange,
+
     onUpload,
     progresses,
     accept = { 'image/*': [] },
