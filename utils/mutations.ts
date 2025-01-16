@@ -27,3 +27,20 @@ export const LOGIN_MUTATION = gql`
         }
     }
 `;
+
+
+export const CREATE_PRODUCT = gql`
+    mutation CreateProduct($input: CreateProductDTO!) {
+        createProduct(createProduct: $input) {
+            id
+            name
+            description
+            price
+            userId
+            isActive        
+            createdAt
+            updatedAt
+            reviewsCount
+        }
+    }
+`;

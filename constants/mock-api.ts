@@ -80,9 +80,8 @@ export const fakeUsers = {
         first_name: faker.person.firstName(),
         last_name: faker.person.lastName(),
         email: `${faker.internet.email()}`,
-        phone: `001-${Math.floor(Math.random() * 900) + 100}-${
-          Math.floor(Math.random() * 900) + 100
-        }-${Math.floor(Math.random() * 10000)}`,
+        phone: `001-${Math.floor(Math.random() * 900) + 100}-${Math.floor(Math.random() * 900) + 100
+          }-${Math.floor(Math.random() * 10000)}`,
         street: `${Math.floor(
           Math.random() * 1000
         )} ${faker.location.street()}`,
@@ -194,6 +193,7 @@ export type Product = {
   id: number;
   category: string;
   updated_at: string;
+  image: string[]
 };
 
 // Mock product data store
@@ -225,7 +225,8 @@ export const fakeProducts = {
         price: parseFloat(faker.commerce.price({ min: 5, max: 500, dec: 2 })),
         photo_url: `https://api.slingacademy.com/public/sample-products/${id}.png`,
         category: faker.helpers.arrayElement(categories),
-        updated_at: faker.date.recent().toISOString()
+        updated_at: faker.date.recent().toISOString(),
+        image: []
       };
     }
 

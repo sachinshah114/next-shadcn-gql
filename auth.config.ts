@@ -71,6 +71,20 @@ const authConfig = {
       }
     })
   ],
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        // Add access_token to the token object        
+        token.access_token = user.access_token;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      // Add access_token to the session object      
+      session.user.access_token = token?.access_token as string | undefined;
+      return session;
+    },
+  },
   pages: {
     signIn: '/' //sigin page
   }
