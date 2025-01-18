@@ -26,13 +26,13 @@ export default function ProductTableAction() {
         setSearchQuery={setSearchQuery}
         setPage={setPage}
       />
-      <DataTableFilterBox
+      {/* <DataTableFilterBox
         filterKey="categories"
         title="Categories"
         options={CATEGORY_OPTIONS}
         setFilterValue={setCategoriesFilter}
         filterValue={categoriesFilter}
-      />
+      /> */}
       <DataTableResetFilter
         isFilterActive={isAnyFilterActive}
         onReset={resetFilters}

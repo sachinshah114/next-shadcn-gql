@@ -74,13 +74,15 @@ const authConfig = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        // Add access_token to the token object        
+        // Add access_token to the token object   
+        console.log(`In callbacks auth === `, user)
         token.access_token = user.access_token;
       }
       return token;
     },
     async session({ session, token }) {
-      // Add access_token to the session object      
+      // Add access_token to the session object 
+      console.log(`In session auth === `, token);
       session.user.access_token = token?.access_token as string | undefined;
       return session;
     },
